@@ -1,0 +1,465 @@
+[
+    {
+        "id": "9f890318d46ed57e",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "ba4fb92c68f96163",
+        "type": "inject",
+        "z": "9f890318d46ed57e",
+        "d": true,
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "67cb04d8cee1234d"
+            ]
+        ]
+    },
+    {
+        "id": "67cb04d8cee1234d",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "Generate ID + Timestamp",
+        "func": "\nlet id = Math.floor(Math.random() * 30001);\nlet timestamp = Date.now();\nmsg.payload = {\n    id: id,\n    timestamp: timestamp\n};\nmsg.csvLine = `${id},${timestamp}`;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "4b735c8b8e647bcf",
+                "c08db169102f118a",
+                "fc0d105e52a18743"
+            ]
+        ]
+    },
+    {
+        "id": "4b735c8b8e647bcf",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "c08db169102f118a",
+        "type": "mqtt out",
+        "z": "9f890318d46ed57e",
+        "name": "Publish ID",
+        "topic": "challenge3/id_generator",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "36eb7c22cd34b192",
+        "x": 590,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d24e6d267b93c6c1",
+        "type": "file",
+        "z": "9f890318d46ed57e",
+        "name": "",
+        "filename": "/home/iotpolimi/Desktop/id_log.csv",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 780,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fc0d105e52a18743",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "function 2",
+        "func": "\nlet id = msg.payload.id;\nlet timestamp = msg.payload.timestamp;\n\n// global counter for row numbers\nglobal.set(\"counter\", (global.get(\"counter\") || 0) + 1);\nlet counter = global.get(\"counter\");\n\n// only add header if it's the first message\nif (counter === 1) {\n    msg.payload = `No.,ID,TIMESTAMP\\n${counter},${id},${timestamp}`;\n} else {\n    msg.payload = `${counter},${id},${timestamp}`;\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 220,
+        "wires": [
+            [
+                "d24e6d267b93c6c1"
+            ]
+        ]
+    },
+    {
+        "id": "0dfb2ce16ce05784",
+        "type": "mqtt in",
+        "z": "9f890318d46ed57e",
+        "name": "Receive ID from MQTT",
+        "topic": "challenge3/id_generator",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "36eb7c22cd34b192",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 560,
+        "y": 280,
+        "wires": [
+            [
+                "fa297591a821ead1",
+                "c82defa25949e064"
+            ]
+        ]
+    },
+    {
+        "id": "fa297591a821ead1",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 760,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "c82defa25949e064",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "Calculate N",
+        "func": "\nlet id = msg.payload.id;\nlet N = id % 7711;\n\nmsg.id = id;\n\nmsg.payload = N;\nmsg.topic = \"N value\";\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 770,
+        "y": 340,
+        "wires": [
+            [
+                "f930ad3216c28601",
+                "87b60e2644b8a390"
+            ]
+        ]
+    },
+    {
+        "id": "f930ad3216c28601",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 3",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "b5868f2431c3113c",
+        "type": "file in",
+        "z": "9f890318d46ed57e",
+        "name": "",
+        "filename": "/home/iotpolimi/Desktop/challenge3.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 400,
+        "y": 560,
+        "wires": [
+            [
+                "5b06312ddac16488"
+            ]
+        ]
+    },
+    {
+        "id": "5b06312ddac16488",
+        "type": "csv",
+        "z": "9f890318d46ed57e",
+        "name": "",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "none",
+        "multi": "mult",
+        "ret": "\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 630,
+        "y": 560,
+        "wires": [
+            [
+                "23b3551a7d89b6aa"
+            ]
+        ]
+    },
+    {
+        "id": "23b3551a7d89b6aa",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "store csv to flow",
+        "func": "flow.set(\"csvData\", msg.payload);\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 800,
+        "y": 560,
+        "wires": [
+            [
+                "42e5faf79c8820ed"
+            ]
+        ]
+    },
+    {
+        "id": "42e5faf79c8820ed",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "ebfae28c9d55476a",
+        "type": "inject",
+        "z": "9f890318d46ed57e",
+        "name": "load csv once",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 560,
+        "wires": [
+            [
+                "b5868f2431c3113c"
+            ]
+        ]
+    },
+    {
+        "id": "87b60e2644b8a390",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "function 4",
+        "func": "\nlet N = msg.payload;\nlet csvData = flow.get(\"csvData\");\n\nif (!csvData || !csvData[N]) {\n    msg.payload = \"Invalid N: \" + N;\n    return msg;\n}\n\nmsg.payload = csvData[N];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 400,
+        "wires": [
+            [
+                "05aee9792d541f99",
+                "0b1cb5ce3b6e2958"
+            ]
+        ]
+    },
+    {
+        "id": "05aee9792d541f99",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1140,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "0b1cb5ce3b6e2958",
+        "type": "function",
+        "z": "9f890318d46ed57e",
+        "name": "Build MQTT Publish Message",
+        "func": "let id = msg.id;\nlet currentTimestamp = Date.now();\n\n// اصلاح اسم فیلدها براساس خروجی واقعی CSV\nlet topic = msg.payload[\"Info\"];\nlet payload = msg.payload[\"Payload\"];\n\nmsg.topic = topic;\nmsg.payload = {\n    timestamp: currentTimestamp,\n    id: id,\n    topic: topic,\n    payload: payload\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 480,
+        "wires": [
+            [
+                "fb7e976d83c11f90",
+                "7377f4c431371e95"
+            ]
+        ]
+    },
+    {
+        "id": "fb7e976d83c11f90",
+        "type": "delay",
+        "z": "9f890318d46ed57e",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "4",
+        "nbRateUnits": "1",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1190,
+        "y": 460,
+        "wires": [
+            [
+                "a5c1639e39dc3583"
+            ]
+        ]
+    },
+    {
+        "id": "a5c1639e39dc3583",
+        "type": "mqtt out",
+        "z": "9f890318d46ed57e",
+        "name": "",
+        "topic": "msg.topic",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "36eb7c22cd34b192",
+        "x": 1340,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "7377f4c431371e95",
+        "type": "debug",
+        "z": "9f890318d46ed57e",
+        "name": "debug 8",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1180,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "36eb7c22cd34b192",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

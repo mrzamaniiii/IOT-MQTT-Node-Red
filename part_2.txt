@@ -1,0 +1,448 @@
+[
+    {
+        "id": "0d5463039764c759",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "41803d2dd241bf7f",
+        "type": "inject",
+        "z": "0d5463039764c759",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "758cdbc293e90ba9"
+            ]
+        ]
+    },
+    {
+        "id": "758cdbc293e90ba9",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "Generate ID + Timestamp",
+        "func": "let id = Math.floor(Math.random() * 30001); // عدد تصادفی بین 0 و 30000\nlet timestamp = Date.now();\nmsg.payload = {\n    id: id,\n    timestamp: timestamp\n};\nmsg.csvLine = `${id},${timestamp}`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "e32bb51f3b408677",
+                "ddc75348e51f473f",
+                "4eb2edfc108c8166"
+            ]
+        ]
+    },
+    {
+        "id": "e32bb51f3b408677",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ddc75348e51f473f",
+        "type": "mqtt out",
+        "z": "0d5463039764c759",
+        "name": "Publish ID",
+        "topic": "challenge3/id_generator",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "36eb7c22cd34b192",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b9240f7809138d21",
+        "type": "file",
+        "z": "0d5463039764c759",
+        "name": "",
+        "filename": "/home/iotpolimi/Desktop/id_log.csv",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 780,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4eb2edfc108c8166",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "function 2",
+        "func": "let id = msg.payload.id;\nlet timestamp = msg.payload.timestamp;\n\n// global counter for row numbers\nglobal.set(\"counter\", (global.get(\"counter\") || 0) + 1);\nlet counter = global.get(\"counter\");\n\n// only add header if it's the first message\nif (counter === 1) {\n    msg.payload = `No.,ID,TIMESTAMP\\n${counter},${id},${timestamp}`;\n} else {\n    msg.payload = `${counter},${id},${timestamp}`;\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 220,
+        "wires": [
+            [
+                "b9240f7809138d21"
+            ]
+        ]
+    },
+    {
+        "id": "dcd31d66ac151fa8",
+        "type": "mqtt in",
+        "z": "0d5463039764c759",
+        "name": "Receive ID from MQTT",
+        "topic": "challenge3/id_generator",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "36eb7c22cd34b192",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 560,
+        "y": 280,
+        "wires": [
+            [
+                "011a2fe1b9ea851d",
+                "2a0534bb79c99386"
+            ]
+        ]
+    },
+    {
+        "id": "011a2fe1b9ea851d",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "2a0534bb79c99386",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "Calculate N",
+        "func": "let id = msg.payload.id;\nlet N = id % 7711;\nmsg.payload = N;\nmsg.topic = \"N value\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 340,
+        "wires": [
+            [
+                "05c29fc1ce19dc4d",
+                "a805c4677dea101e"
+            ]
+        ]
+    },
+    {
+        "id": "05c29fc1ce19dc4d",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 3",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "352c7d615c7c27cd",
+        "type": "file in",
+        "z": "0d5463039764c759",
+        "name": "",
+        "filename": "/home/iotpolimi/Desktop/challenge3.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "utf8",
+        "allProps": false,
+        "x": 220,
+        "y": 440,
+        "wires": [
+            [
+                "5a55bcbd8d07226c"
+            ]
+        ]
+    },
+    {
+        "id": "5a55bcbd8d07226c",
+        "type": "csv",
+        "z": "0d5463039764c759",
+        "name": "",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "none",
+        "multi": "mult",
+        "ret": "\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 470,
+        "y": 440,
+        "wires": [
+            [
+                "7f1fe5f1347eb6ee"
+            ]
+        ]
+    },
+    {
+        "id": "7f1fe5f1347eb6ee",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "store csv to flow",
+        "func": "flow.set(\"csvData\", msg.payload);\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 480,
+        "wires": [
+            [
+                "4fcfade747e127ae"
+            ]
+        ]
+    },
+    {
+        "id": "4fcfade747e127ae",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "68aad22c214fc50a",
+        "type": "inject",
+        "z": "0d5463039764c759",
+        "name": "load csv once",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 520,
+        "wires": [
+            [
+                "352c7d615c7c27cd"
+            ]
+        ]
+    },
+    {
+        "id": "7ef2f2feeb252f0f",
+        "type": "inject",
+        "z": "0d5463039764c759",
+        "name": "test csv from flow",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 680,
+        "wires": [
+            [
+                "d99fa4141a5428f1"
+            ]
+        ]
+    },
+    {
+        "id": "d99fa4141a5428f1",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "function 3",
+        "func": "let csv = flow.get(\"csvData\");\nmsg.payload = csv;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 680,
+        "wires": [
+            [
+                "c32dd0d51310a6bd"
+            ]
+        ]
+    },
+    {
+        "id": "c32dd0d51310a6bd",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 6",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "a805c4677dea101e",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "function 4",
+        "func": "let N = msg.payload;  // چون N عدد ساده هست\nlet csvData = flow.get(\"csvData\");\n\nif (!csvData || !csvData[N]) {\n    msg.payload = \"Invalid N: \" + N;\n    return msg;\n}\n\nmsg.payload = csvData[N];\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 400,
+        "wires": [
+            [
+                "a5da180c97dbeaef"
+            ]
+        ]
+    },
+    {
+        "id": "a5da180c97dbeaef",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 7",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "36eb7c22cd34b192",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

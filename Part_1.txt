@@ -1,0 +1,164 @@
+[
+    {
+        "id": "0d5463039764c759",
+        "type": "tab",
+        "label": "Flow 3",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "41803d2dd241bf7f",
+        "type": "inject",
+        "z": "0d5463039764c759",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 110,
+        "y": 80,
+        "wires": [
+            [
+                "758cdbc293e90ba9"
+            ]
+        ]
+    },
+    {
+        "id": "758cdbc293e90ba9",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "Generate ID + Timestamp",
+        "func": "let id = Math.floor(Math.random() * 30001); // عدد تصادفی بین 0 و 30000\nlet timestamp = Date.now();\nmsg.payload = {\n    id: id,\n    timestamp: timestamp\n};\nmsg.csvLine = `${id},${timestamp}`;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "e32bb51f3b408677",
+                "ddc75348e51f473f",
+                "4eb2edfc108c8166"
+            ]
+        ]
+    },
+    {
+        "id": "e32bb51f3b408677",
+        "type": "debug",
+        "z": "0d5463039764c759",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "ddc75348e51f473f",
+        "type": "mqtt out",
+        "z": "0d5463039764c759",
+        "name": "Publish ID",
+        "topic": "challenge3/id_generator",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "36eb7c22cd34b192",
+        "x": 550,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "b9240f7809138d21",
+        "type": "file",
+        "z": "0d5463039764c759",
+        "name": "",
+        "filename": "/home/iotpolimi/Desktop/id_log.csv",
+        "filenameType": "str",
+        "appendNewline": true,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 760,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4eb2edfc108c8166",
+        "type": "function",
+        "z": "0d5463039764c759",
+        "name": "function 2",
+        "func": "let id = msg.payload.id;\nlet timestamp = msg.payload.timestamp;\n\n// global counter for row numbers\nglobal.set(\"counter\", (global.get(\"counter\") || 0) + 1);\nlet counter = global.get(\"counter\");\n\n// only add header if it's the first message\nif (counter === 1) {\n    msg.payload = `No.,ID,TIMESTAMP\\n${counter},${id},${timestamp}`;\n} else {\n    msg.payload = `${counter},${id},${timestamp}`;\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 220,
+        "wires": [
+            [
+                "b9240f7809138d21"
+            ]
+        ]
+    },
+    {
+        "id": "36eb7c22cd34b192",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]
